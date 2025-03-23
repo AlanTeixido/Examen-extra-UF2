@@ -16,9 +16,14 @@
   </template>
   
   <script setup>
+  import { onMounted } from 'vue'
   import { useEmbassaments } from '@/composables/useEmbassaments'
   
-  const { embassaments, loading, error } = useEmbassaments()
+  const { embassaments, loading, error, getEmbassaments } = useEmbassaments()
+  
+  onMounted(() => {
+    getEmbassaments()
+  })
   </script>
   
   <style scoped>

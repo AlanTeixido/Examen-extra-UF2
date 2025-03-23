@@ -1,29 +1,28 @@
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import axios from 'axios'
 
 const API_URL = 'https://analisi.transparenciacatalunya.cat/resource/gn9e-3qhr.json'
 
-export function useEmbassaments() {
+export const useEmbassaments = () => {
   const embassaments = ref([])
-  const loading = ref(true)
+  const loading = ref(false)
   const error = ref(null)
 
-  const fetchEmbassaments = async () => {
+  const getEmbassaments = async () => {
+    loading.value = true
+    error.value = null
+
     try {
-      const response = await axios.get(API_URL)
-      const data = response.data
+      const { data } = await axios.get(API_URL)
 
-      const nomsUnics = new Set()
-      const unics = []
-
-      for (const item of data) {
-        if (!nomsUnics.has(item.estaci)) {
-          nomsUnics.add(item.estaci)
-          unics.push(item)
+      const vistos = new Set()
+      embassaments.value = data.filter(item => {
+        if (!vistos.has(item.estaci)) {
+          vistos.add(item.estaci)
+          return true
         }
-      }
-
-      embassaments.value = unics
+        return false
+      })
     } catch (err) {
       error.value = err
     } finally {
@@ -31,11 +30,10 @@ export function useEmbassaments() {
     }
   }
 
-  onMounted(fetchEmbassaments)
-
   return {
     embassaments,
     loading,
-    error
+    error,
+    getEmbassaments
   }
 }
